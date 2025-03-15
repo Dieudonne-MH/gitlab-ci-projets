@@ -1,0 +1,9 @@
+LAB-2 : TEST D'ACCEPTANCE
+
+• Modifiez le pipeline afin de rajouter un job qui lance l'image Buildeŕ et la teste à l'aide de curl
+• Le curl doit tester si le site contient bien Hello world !>
+• Vous aurez un souci car l'image n'existera pas au moment où vous allez lancer le conteneur (la variable $PORT pourra être mise à 80)
+• Vous allez utiliser la notion d'artefact pour permettre à l'image d'être vue par le job
+• Indice : vous devez utiliser comme « path » le répertoire où docker stocke les images suivant (vous pouvez utiliser la notion d'import et export d'image docker)
+• Si le test avec curl passe, alors vous êtes prêt pour la prochaine étape
+

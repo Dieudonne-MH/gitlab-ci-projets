@@ -1,0 +1,8 @@
+LAB-1 : BUILD
+
+• Créez un compte sur gitlab.com
+• Créez un repo
+• Récupérez le code de l'application et poussez le sur votre repo https://github.com/eazytrainingfr/alpinehelloworld.git
+• Créez votre fichier gitlab-ci.yml
+• Créez un job quí va permettre de Builder votre application sous forme d'image docker à partir du Dockerfile fourni dans le dossier de l'application
+• Lancez votre pipeline et validez que l'image est bien Builder

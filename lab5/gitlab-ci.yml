@@ -1,0 +1,100 @@
+image: docker:latest
+services:
+  - name: docker:dind
+    alias: docker
+
+stages:
+  - build
+  - Test acceptation
+  - Release image
+  - Deploy staging
+  - Deploy prod
+
+docker-build:
+  # Use the official docker image.
+  stage: build
+  script:
+    - docker build -t  alpinehelloworld .
+    - docker save alpinehelloworld > alpinehelloworld.tar
+  artifacts:
+    paths:
+      - alpinehelloworld.tar    
+
+test acceptation:
+  # Official docker image.
+  stage: Test acceptation
+  script:
+    - docker load < alpinehelloworld.tar # on demande à test acceptation de charger notre artefact
+    - docker rm -f webapp # Nettoyage
+    - docker run -d -p 80:5000 -e PORT=5000 --name webapp alpinehelloworld
+    - sleep 5 # Attendre que le conteneur soit prêt
+    - apk --no-cache add curl # Installer curl
+    - curl "http://docker" | grep  "Hello world!"
+
+release image:
+  stage: Release image
+  script:
+    - docker load < alpinehelloworld.tar
+    - docker tag alpinehelloworld "${IMAGE_NAME}:${CI_COMMIT_REF_NAME}"
+    - docker tag alpinehelloworld "${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}"
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker push "${IMAGE_NAME}:${CI_COMMIT_REF_NAME}"
+    - docker push "${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}"
+
+deploy staging: 
+  stage: Deploy staging
+  environment:
+    name: staging
+    url: http://${HOSTNAME_DEPLOY_STAGING}
+  only:
+   - master
+  script:
+    - apk add openssh-client
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - chmod -R 400 ~/.ssh
+    - touch ~/.ssh/known_hosts
+    - cd ~/.ssh
+    - echo "${SSH_KEY}" > id_rsa
+    - chmod 0400 id_rsa
+    - ssh-keyscan -t rsa  ${HOSTNAME_DEPLOY_STAGING} >> ~/.ssh/known_hosts
+    - command1="docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
+    - command2="docker pull $IMAGE_NAME:$CI_COMMIT_REF_NAME"
+    - command3="docker rm -f webapp"
+    - command4="docker run -d -p 80:5000 -e PORT=5000 --name webapp $IMAGE_NAME:$CI_COMMIT_REF_NAME"
+    - ssh -t ${SSH_USER}@${HOSTNAME_DEPLOY_STAGING} 
+      -o SendEnv=IMAGE_NAME 
+      -o SendEnv=CI_COMMIT_REF_NAME 
+      -o SendEnv=CI_REGISTRY_USER 
+      -o SendEnv=CI_REGISTRY_PASSWORD 
+      -o SendEnv=CI_REGISTRY 
+      -C "$command1 && $command2 && $command3 && $command4"
+
+deploy prod: 
+  stage: Deploy prod
+  environment:
+    name: prod
+    url: http://${HOSTNAME_DEPLOY_PROD}
+  only:
+   - master
+  script:
+    - apk add openssh-client
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - chmod -R 400 ~/.ssh
+    - touch ~/.ssh/known_hosts
+    - cd ~/.ssh
+    - echo "${SSH_KEY}" > id_rsa
+    - chmod 0400 id_rsa
+    - ssh-keyscan -t rsa  ${HOSTNAME_DEPLOY_PROD} >> ~/.ssh/known_hosts
+    - command1="docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
+    - command2="docker pull $IMAGE_NAME:$CI_COMMIT_REF_NAME"
+    - command3="docker rm -f webapp"
+    - command4="docker run -d -p 80:5000 -e PORT=5000 --name webapp $IMAGE_NAME:$CI_COMMIT_REF_NAME"
+    - ssh -t ${SSH_USER}@${HOSTNAME_DEPLOY_PROD} 
+      -o SendEnv=IMAGE_NAME 
+      -o SendEnv=CI_COMMIT_REF_NAME 
+      -o SendEnv=CI_REGISTRY_USER 
+      -o SendEnv=CI_REGISTRY_PASSWORD 
+      -o SendEnv=CI_REGISTRY 
+      -C "$command1 && $command2 && $command3 && $command4"

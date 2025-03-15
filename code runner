@@ -1,0 +1,42 @@
+#https://docs.gitlab.com/runner/register/
+
+mkdir -p /data/gitlab/runner/
+
+docker run -d --name gitlab-runner --restart always -v /var/run/docker.sock:/var/run/docker.sock -v /data/gitlab/runner:/etc/gitlab-runner gitlab/gitlab-runner:latest
+
+export TOKEN="your token"
+
+docker run --rm -v /data/gitlab/runner/:/etc/gitlab-runner gitlab/gitlab-runner register \
+--non-interactive \
+--executor "docker" \
+--docker-image docker:dind \
+--url "https://gitlab.com/" \
+--registration-token $TOKEN \
+--description "docker-runner-eazytraining" \
+--tag-list "docker-eazytraining" \
+--run-untagged="true" \
+--locked="false" \
+--access-level="not_protected" \
+--docker-privileged \
+--docker-volumes '/var/run/docker.sock:/var/run/docker.sock'
+
+# section optionnelle à rajouter dans votre fichier gitlab-ci.yml
+default:
+tags:
+- docker-eazytraining
+ 
+
+# Ne suivez les instructions ci-contre uniquement quand vous serez au lab-2 et si vous avez utilisé un runner privé
+# Vous devez également mettre à jour le code utilisé dans le Lab-2 au niveau de la section « test d’acceptance »
+
+test acceptation:
+  stage: Test acceptation
+  script:
+    - docker rmi alpinehelloworld || echo "image already deleted"
+    - docker load < alpinehelloworld.tar
+    - docker rm -vf webapp || echo "container already cleaned"
+    - docker run -d -p 80:5000 -e PORT=5000 --name webapp alpinehelloworld
+    - sleep 5
+    - apk --no-cache add curl
+    - curl "http://docker" | grep -q "Hello world!"
+    - docker rm -vf webapp && echo "clean container"

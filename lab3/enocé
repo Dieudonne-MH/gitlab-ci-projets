@@ -1,0 +1,7 @@
+LAB-3: RELEASE
+
+• Créez un job qui va tagguer l'image avec deux tags, un qui représentera la branche et l'autre qui représentera le SHA court (voir variable d'environnement prédéfinis)
+• Pour donner le nom de votre image vous allez définir ce dernier à l'aide de la variable d'environnement que vous appellerez lors du tag
+• Poussez l'image tagguée sur votre private registry gitlab
+• Vérifiez que l'image a bien été poussée avec les bons tags
+• Si c'est le cas, votre release est terminée, vous êtes prêt pour suite
