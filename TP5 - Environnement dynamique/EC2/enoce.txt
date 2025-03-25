@@ -1,0 +1,8 @@
+Lab-5 : Environnement Dynamique (EC2)
+
+• A partir de votre compte AWS, générez une paire de clé deploy.pem, un SG autorisant la connexion SSH, HTTP et des ACCESS_KEY, SECRET_KEY à partir de votre user IAM.
+• Définir comme variable d'environnement utilisateurs les ACCESS_KEY, SECRET_KEY, SSH_KEY, SSH_USER et comme variable globale les identifiants de la paire de clé et de la SG.
+• Créez un job qui permettra de réaliser une review uniquement lors de merge request et qui devra être dans un environnement dédié au review à part entière
+• Aussi ce job devra permettre le provisionnement d'une instance EC2 Ubuntu (ami-0866a3c8686eaeeba) avec docker installé dessus et le déploiement de notre application.
+• Créez un autre job dont le but sera de supprimer l'environnement de review après la validation de la Merge Request (dont de la suppression de la branche qui était en review)
+• Vérifiez que tout cela marche, si c'est le cas, vous êtes prêt pour la suite

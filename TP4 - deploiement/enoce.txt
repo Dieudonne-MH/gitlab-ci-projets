@@ -1,0 +1,11 @@
+Lab-4 : Déploiement en Prod et Staging (EC2)
+
+• Connectez-vous à votre compte AWS. 
+• Créez 2 machines virtuelles EC2 basé sur une ami Ubuntu (ami-0e86e20dae9224db8) dans la région de virginie (us-east-1a) accessible via une même clé privée SSH
+• Installez docker sur les machines virtuelles
+• Créez quatre variables d’environnement : 
+  SSH_KEY pour la clé privée d'accès aux VM 
+  SSH_USER pour le nom d'utilisateur d'accès aux VM
+HOSTNAME_DEPLOY_PROD pour l'IP ou nom de domaine de la VM de prod et HOSTNAME_DEPLOY_PROD pour l'IP ou le nom de domaine de la VM de staging
+• Rajouter deux jobs qui permettront de déployer le conteneur en prod et un staging (deux environnements seront nécessaires)
+• Le déploiement ne doit se faire que sur la branche master

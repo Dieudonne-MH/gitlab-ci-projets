@@ -3,6 +3,7 @@ services:
   - name: docker:dind
     alias: docker
 
+
 stages:
   - build
   - Test acceptation
@@ -20,15 +21,15 @@ docker-build:
     paths:
       - alpinehelloworld.tar    
 
+
 test acceptation:
   # Official docker image.
   stage: Test acceptation
   script:
-    - docker load < alpinehelloworld.tar # on demande à test acceptation de charger notre artefact
-    - docker rm -f webapp # Nettoyage
+    - docker load < alpinehelloworld.tar
     - docker run -d -p 80:5000 -e PORT=5000 --name webapp alpinehelloworld
-    - sleep 5 # Attendre que le conteneur soit prêt
-    - apk --no-cache add curl # Installer curl
+    - sleep 5
+    - apk --no-cache add curl
     - curl "http://docker" | grep  "Hello world!"
 
 release image:
@@ -69,6 +70,7 @@ deploy staging:
       -o SendEnv=CI_REGISTRY_PASSWORD 
       -o SendEnv=CI_REGISTRY 
       -C "$command1 && $command2 && $command3 && $command4"
+
 
 deploy prod: 
   stage: Deploy prod

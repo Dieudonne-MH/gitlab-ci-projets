@@ -3,13 +3,13 @@ services:
   - name: docker:dind
     alias: docker
 
+
 stages:
   - build
   - Test acceptation
   - Release image
-   - Deploy staging
+  - Deploy staging
   - Deploy prod
-
 
 docker-build:
   # Use the official docker image.
@@ -21,15 +21,15 @@ docker-build:
     paths:
       - alpinehelloworld.tar    
 
+
 test acceptation:
   # Official docker image.
   stage: Test acceptation
   script:
-    - docker load < alpinehelloworld.tar # on demande à test acceptation de charger notre artefact
-    - docker rm -f webapp # Nettoyage
+    - docker load < alpinehelloworld.tar
     - docker run -d -p 80:5000 -e PORT=5000 --name webapp alpinehelloworld
-    - sleep 5 # Attendre que le conteneur soit prêt
-    - apk --no-cache add curl # Installer curl
+    - sleep 5
+    - apk --no-cache add curl
     - curl "http://docker" | grep  "Hello world!"
 
 release image:
@@ -42,13 +42,14 @@ release image:
     - docker push "${IMAGE_NAME}:${CI_COMMIT_REF_NAME}"
     - docker push "${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}"
 
+
 deploy staging:
   stage: Deploy staging
   environment:
     name: staging
     url: https://${HOSTNAME_DEPLOY_STAGING}
   variables:
-    HEROKU_APP: haykein-staging
+    HEROKU_APP: eazytraining-staging-gitlab
   only:
     - master
   script:
@@ -69,7 +70,7 @@ deploy prod:
     name: prod
     url: https://${HOSTNAME_DEPLOY_PROD} # eg: url_a_recuperer_sur_heroku
   variables:
-    HEROKU_APP: haykein-prod
+    HEROKU_APP: eazytraining-prod-gitlab
   only:
     - master
   script:
